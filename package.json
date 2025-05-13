@@ -1,0 +1,19 @@
+{
+  "name": "phaser-game",
+  "version": "1.0.0",
+  "description": "A simple Phaser game",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Gerard Moreno Campos",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.88.2"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
