@@ -46,5 +46,3 @@ class LivesManager {
         console.log('LivesManager actualitzat amb nova escena i jugador, vides actuals:', this.lives);
     }
 }
-
-export default LivesManager;

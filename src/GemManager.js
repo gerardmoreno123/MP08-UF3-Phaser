@@ -30,5 +30,3 @@ class GemManager {
         console.log('GemManager actualizado con nueva escena, monedas actuales:', this.coins);
     }
 }
-
-export default GemManager;

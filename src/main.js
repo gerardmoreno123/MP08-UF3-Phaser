@@ -1,15 +1,8 @@
-import Phaser from 'phaser';
-import StartScene from './scenes/StartScene.js';
-import Level1Scene from './scenes/Level1Scene.js';
-import GameOverScene from './scenes/GameOverScene.js';
-import Level2Scene from "./scenes/Level2Scene";
-import EndScene from "./scenes/EndScene";
-
 const TILE_SIZE = 16;
 const TILES_X = 32;
 const TILES_Y = 16;
 
-const GAME_WIDTH = TILE_SIZE * TILES_X;   // 256
+const GAME_WIDTH = TILE_SIZE * TILES_X;   // 512
 const GAME_HEIGHT = TILE_SIZE * TILES_Y;  // 256
 
 const config = {
@@ -27,10 +20,9 @@ const config = {
     },
     scene: [StartScene, Level1Scene, Level2Scene, GameOverScene, EndScene],
     scale: {
-        mode: Phaser.Scale.FIT, // Escala hasta llenar el espacio disponible
-        autoCenter: Phaser.Scale.CENTER_BOTH, // Centrar en pantalla
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
     }
 };
 
 const game = new Phaser.Game(config);
-

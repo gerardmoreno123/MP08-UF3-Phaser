@@ -1,11 +1,3 @@
-import Phaser from 'phaser';
-import Player from '../Player.js';
-import LivesManager from '../LivesManager.js';
-import UIManager from '../UIManager.js';
-import GemManager from '../GemManager.js';
-import player from "../Player.js";
-import EnemyManager from "../EnemyManager";
-
 class Level2Scene extends Phaser.Scene {
     constructor() {
         super('Level2Scene');
@@ -242,5 +234,3 @@ class Level2Scene extends Phaser.Scene {
         }
     }
 }
-
-export default Level2Scene;

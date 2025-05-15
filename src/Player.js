@@ -1,5 +1,3 @@
-import Phaser from 'phaser';
-
 class Player {
     constructor(scene, x, y) {
         this.scene = scene;
@@ -199,5 +197,3 @@ class Player {
         return this.sprite;
     }
 }
-
-export default Player;

@@ -1,5 +1,3 @@
-import Phaser from 'phaser';
-
 class EnemyManager {
     constructor(scene) {
         this.scene = scene;
@@ -90,5 +88,3 @@ class EnemyManager {
         return this.enemies;
     }
 }
-
-export default EnemyManager;

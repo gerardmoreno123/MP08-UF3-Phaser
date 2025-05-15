@@ -37,5 +37,3 @@ class GameOverScene extends Phaser.Scene {
         startButton.on('pointerout', () => startButton.setStyle({ color: '#00ff00' }));
     }
 }
-
-export default GameOverScene;
