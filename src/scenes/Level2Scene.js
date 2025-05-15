@@ -4,6 +4,7 @@ import LivesManager from '../LivesManager.js';
 import UIManager from '../UIManager.js';
 import GemManager from '../GemManager.js';
 import player from "../Player.js";
+import EnemyManager from "../EnemyManager";
 
 class Level2Scene extends Phaser.Scene {
     constructor() {
@@ -165,8 +166,22 @@ class Level2Scene extends Phaser.Scene {
                 console.log('UIManager reused with', this.livesManager.getLives(), 'lives and', this.gemManager.getCoins(), 'coins');
             }
 
+            // Instantiate EnemyManager
+            this.enemyManager = new EnemyManager(this);
+            this.registry.set('EnemyManager', this.enemyManager);
+
+            this.enemyManager.spawnEnemy(382, 180);
+
+            // Debug: Add a rectangle to visualize enemy position
+            this.enemies = this.enemyManager.getEnemies();
+            if (this.enemies.length > 0) {
+                this.add.rectangle(this.enemies[0].x, this.enemies[0].y, 32, 32); // Red semi-transparent rectangle
+                console.log('Debug rectangle added at enemy position:', this.enemies[0].x, this.enemies[0].y);
+            }
+
             this.physics.add.collider(playerSprite, floorLayer1);
             this.physics.add.collider(playerSprite, slabLayer);
+            this.physics.add.collider(this.enemyManager.getEnemies(), floorLayer1);
 
             this.physics.add.overlap(playerSprite, deathLayer, (player, tile) => {
                 if (this.canRestart && this.hasInitialized && tile.index !== -1) {
@@ -191,7 +206,7 @@ class Level2Scene extends Phaser.Scene {
 
             this.physics.add.overlap(playerSprite, portals, () => {
                 console.log('Portal tocado en Level2Scene, trasladando a GameOverScene');
-                this.scene.start('GameOverScene');
+                this.scene.start('EndScene');
             }, null, this);
 
             this.physics.add.overlap(playerSprite, coins, (player, coin) => {
@@ -221,6 +236,9 @@ class Level2Scene extends Phaser.Scene {
     update() {
         if (this.player) {
             this.player.update();
+        }
+        if (this.enemyManager) {
+            this.enemyManager.update();
         }
     }
 }

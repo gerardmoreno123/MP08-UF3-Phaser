@@ -13,10 +13,82 @@ class Player {
         this.isMoving = false;
         this.isLyingDown = true;
         this.isStandingUp = false;
+        this.isAttacking = false;
         this.idleTimer = null;
         this.canJump = true;
 
         this.sprite.setFrame(35);
+
+        // Define animations
+        this.scene.anims.create({
+            key: 'idle',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 0, end: 1 }),
+            frameRate: 2,
+            repeat: -1
+        });
+        this.scene.anims.create({
+            key: 'walk',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 16, end: 19 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.scene.anims.create({
+            key: 'jump',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 40, end: 48 }),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.scene.anims.create({
+            key: 'lie_down',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 32, end: 35 }),
+            frameRate: 5,
+            repeat: 0
+        });
+        this.scene.anims.create({
+            key: 'stand_up',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 36, end: 37 }),
+            frameRate: 2,
+            repeat: 0
+        });
+        this.scene.anims.create({
+            key: 'attack',
+            frames: this.scene.anims.generateFrameNumbers('player', { start: 64, end: 71 }),
+            frameRate: 12,
+            repeat: 0
+        });
+
+        // Set up mouse input
+        this.scene.input.on('pointerdown', (pointer) => {
+            if (pointer.leftButtonDown()) {
+                this.handleAttack();
+            }
+        });
+    }
+
+    handleAttack() {
+        // Prevent attacking if already attacking, lying down, standing up, or in mid-jump
+        if (this.isAttacking || this.isLyingDown || this.isStandingUp || !this.sprite.body.onFloor()) {
+            return;
+        }
+
+        this.isAttacking = true;
+        this.isMoving = false; // Stop movement
+        this.sprite.setVelocityX(0); // Halt horizontal movement
+        if (this.idleTimer) {
+            this.scene.time.removeEvent(this.idleTimer);
+            this.idleTimer = null;
+        }
+
+        this.sprite.play('attack', true);
+        this.sprite.once('animationcomplete', (animation) => {
+            if (animation.key === 'attack') {
+                this.isAttacking = false;
+                // Return to idle if no other input is detected
+                if (!this.isMoving && !this.isLyingDown && this.sprite.body.onFloor()) {
+                    this.sprite.play('idle', true);
+                }
+            }
+        });
     }
 
     update() {
@@ -24,7 +96,12 @@ class Player {
         const speed = 100;
         const jumpSpeed = -180;
 
-        // Detectar movimiento
+        // Prevent movement, jumping, or lying down while attacking
+        if (this.isAttacking) {
+            return;
+        }
+
+        // Detect movement
         if (cursors.left.isDown || cursors.right.isDown || cursors.up.isDown) {
             if (!this.isStandingUp) {
                 if (!this.isMoving) {
@@ -53,7 +130,7 @@ class Player {
             }
             if (this.idleTimer) {
                 this.scene.time.removeEvent(this.idleTimer);
-                this.idleTimer = null; // Cancelar y reiniciar temporizador al moverse
+                this.idleTimer = null;
             }
         } else {
             if (this.isMoving && !this.isStandingUp) {
@@ -73,10 +150,10 @@ class Player {
         }
 
         // Activar lie_down al presionar la tecla de abajo
-        if (cursors.down.isDown && !this.isLyingDown && this.sprite.body.onFloor() && !this.isStandingUp ) {
+        if (cursors.down.isDown && !this.isLyingDown && this.sprite.body.onFloor() && !this.isStandingUp) {
             this.sprite.play('lie_down', true);
             this.isLyingDown = true;
-            this.idleTimer = null; // Cancelar temporizador al presionar hacia abajo
+            this.idleTimer = null;
         }
 
         // Movimiento horizontal
@@ -92,21 +169,21 @@ class Player {
             }
         }
 
-        // Salto (activar con pulsación inicial y mantener animación en el aire)
+        // Salto
         if (!this.isStandingUp && Phaser.Input.Keyboard.JustDown(cursors.up) && this.canJump && this.sprite.body.onFloor()) {
-            this.sprite.setVelocityY(jumpSpeed); // Impulso de salto
-            this.sprite.play('jump', true); // Reproducir animación de salto
-            this.canJump = false; // Bloquear saltos adicionales
+            this.sprite.setVelocityY(jumpSpeed);
+            this.sprite.play('jump', true);
+            this.canJump = false;
             if (this.idleTimer) {
                 this.scene.time.removeEvent(this.idleTimer);
-                this.idleTimer = null; // Cancelar temporizador al saltar
+                this.idleTimer = null;
             }
-            this.isLyingDown = false; // Cancelar lie_down al saltar
+            this.isLyingDown = false;
         }
 
         // Mantener animación de salto mientras está en el aire
         if (!this.sprite.body.onFloor() && !this.isStandingUp && this.sprite.anims.currentAnim && this.sprite.anims.currentAnim.key !== 'jump') {
-            this.sprite.play('jump', true); // Reproducir o mantener jump en el aire
+            this.sprite.play('jump', true);
         }
 
         // Restaurar capacidad de salto al tocar el suelo

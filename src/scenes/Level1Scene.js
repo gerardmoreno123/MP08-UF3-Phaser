@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import Player from '../Player.js';
 import LivesManager from '../LivesManager.js';
 import UIManager from '../UIManager.js';
-import GemManager from '../GemManager.js'; // Import GemManager
+import GemManager from '../GemManager.js';
+import EnemyManager from '../EnemyManager.js';
 
 class Level1Scene extends Phaser.Scene {
     constructor() {
@@ -15,7 +16,11 @@ class Level1Scene extends Phaser.Scene {
         this.load.tilemapTiledJSON('level1_map', 'assets/tilemaps/level1.json');
         this.load.image('nature-paltformer-tileset-16x16', 'assets/tiles/nature-paltformer-tileset-16x16.png');
         this.load.image('Dimensional_Portal', 'assets/sprites/Dimensional_Portal.png');
-        this.load.image('Coin', 'assets/sprites/coin.png'); // Load coin tileset image
+        this.load.image('Coin', 'assets/sprites/coin.png');
+        this.load.spritesheet('enemy', 'assets/sprites/enemy.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
 
         this.load.spritesheet('player', 'assets/sprites/player.png', {
             frameWidth: 32,
@@ -36,6 +41,11 @@ class Level1Scene extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
+
+        // Debug log for preload
+        this.load.once('complete', () => {
+            console.log('Preloading assets, checking enemy.png:', this.textures.exists('enemy'));
+        }, this);
     }
 
     create() {
@@ -45,7 +55,7 @@ class Level1Scene extends Phaser.Scene {
         const map = this.make.tilemap({ key: 'level1_map' });
         const tilesetNature = map.addTilesetImage('nature-paltformer-tileset-16x16', 'nature-paltformer-tileset-16x16');
         const tilesetPortal = map.addTilesetImage('Dimensional_Portal', 'Dimensional_Portal');
-        const tilesetCoin = map.addTilesetImage('Coin', 'Coin'); // Add Coin tileset
+        const tilesetCoin = map.addTilesetImage('Coin', 'Coin');
 
         if (!tilesetNature || !tilesetPortal || !tilesetCoin) {
             console.error('Tileset no carregat correctament!');
@@ -60,52 +70,15 @@ class Level1Scene extends Phaser.Scene {
         const portalLayer = map.createLayer('PortalLayer', tilesetPortal, 0, 0);
         const coinLayer = map.createLayer('CoinLayer', tilesetCoin, 0, 0);
 
+        // Debug log for layers
+        console.log('Available layers:', map.layers.map(layer => layer.name));
+
         floorLayer.setCollisionByExclusion([-1]);
         floorLayer2.setCollisionByExclusion([-1]);
         waterLayer.setCollisionByProperty({ collides: true });
         decorationLayer.setCollisionByExclusion([-1], true, false);
 
-        // Define animations
-        if (!this.anims.exists('idle')) {
-            this.anims.create({
-                key: 'idle',
-                frames: this.anims.generateFrameNumbers('player', { start: 0, end: 1 }),
-                frameRate: 2,
-                repeat: -1
-            });
-        }
-        if (!this.anims.exists('walk')) {
-            this.anims.create({
-                key: 'walk',
-                frames: this.anims.generateFrameNumbers('player', { start: 16, end: 19 }),
-                frameRate: 10,
-                repeat: -1
-            });
-        }
-        if (!this.anims.exists('jump')) {
-            this.anims.create({
-                key: 'jump',
-                frames: this.anims.generateFrameNumbers('player', { start: 40, end: 48 }),
-                frameRate: 10,
-                repeat: 0
-            });
-        }
-        if (!this.anims.exists('lie_down')) {
-            this.anims.create({
-                key: 'lie_down',
-                frames: this.anims.generateFrameNumbers('player', { start: 32, end: 35 }),
-                frameRate: 5,
-                repeat: 0
-            });
-        }
-        if (!this.anims.exists('stand_up')) {
-            this.anims.create({
-                key: 'stand_up',
-                frames: this.anims.generateFrameNumbers('player', { start: 36, end: 37 }),
-                frameRate: 2,
-                repeat: 0
-            });
-        }
+        // Animation creation
         if (!this.anims.exists('portal_anim')) {
             this.anims.create({
                 key: 'portal_anim',
@@ -123,6 +96,7 @@ class Level1Scene extends Phaser.Scene {
             });
         }
 
+
         const portals = [];
         const portalPositions = new Set();
 
@@ -135,7 +109,7 @@ class Level1Scene extends Phaser.Scene {
                 if (!portalPositions.has(positionKey)) {
                     const portalSprite = this.physics.add.sprite(x + 8, y - 5, 'portal');
                     portalSprite.setScale(1.3);
-                    portalSprite.body.setSize(32, 32);
+                    portalSprite.body.setSize(16, 32);
                     portalSprite.play('portal_anim');
                     portalSprite.body.setAllowGravity(false);
                     portals.push(portalSprite);
@@ -165,7 +139,7 @@ class Level1Scene extends Phaser.Scene {
                 if (!coinPositions.has(positionKey)) {
                     const coinSprite = this.physics.add.sprite(x, y, 'coin');
                     coinSprite.setScale(1.5);
-                    coinSprite.body.setSize(16, 16);
+                    coinSprite.body.setSize(8, 8);
                     coinSprite.play('spin');
                     coinSprite.body.setAllowGravity(false);
                     coins.push(coinSprite);
@@ -177,7 +151,7 @@ class Level1Scene extends Phaser.Scene {
             }
         });
         coinLayer.setVisible(false);
-        console.log('Monedas creadas:', coins.length);
+        console.log('Monedas creados:', coins.length);
         coins.forEach((coin, index) => {
             console.log(`Moneda ${index}: x=${coin.x}, y=${coin.y}`);
         });
@@ -185,7 +159,7 @@ class Level1Scene extends Phaser.Scene {
         const mapWidth = map.widthInPixels;
         const mapHeight = map.heightInPixels;
 
-        this.player = new Player(this, 24, 192);
+        this.player = new Player(this, 24, 192); // Mantengo la posición original del jugador
         const playerSprite = this.player.getSprite();
 
         // Instantiate LivesManager and GemManager
@@ -198,8 +172,24 @@ class Level1Scene extends Phaser.Scene {
         this.uiManager = new UIManager(this, this.livesManager, this.gemManager);
         this.registry.set('UIManager', this.uiManager);
 
+        // Instantiate EnemyManager
+        this.enemyManager = new EnemyManager(this);
+        this.registry.set('EnemyManager', this.enemyManager);
+
+        // Manually spawn enemy at (256, 80) - trying a slightly higher position
+        this.enemyManager.spawnEnemy(300, 80);
+
+        // Debug: Add a rectangle to visualize enemy position
+        this.enemies = this.enemyManager.getEnemies();
+        if (this.enemies.length > 0) {
+            this.add.rectangle(this.enemies[0].x, this.enemies[0].y, 32, 32); // Red semi-transparent rectangle
+            console.log('Debug rectangle added at enemy position:', this.enemies[0].x, this.enemies[0].y);
+        }
+
         this.physics.add.collider(playerSprite, floorLayer);
         this.physics.add.collider(playerSprite, floorLayer2);
+        this.physics.add.collider(this.enemyManager.getEnemies(), floorLayer);
+        this.physics.add.collider(this.enemyManager.getEnemies(), floorLayer2);
 
         this.physics.add.overlap(playerSprite, waterLayer, (player, tile) => {
             if (this.canRestart && this.hasInitialized && tile.index !== -1) {
@@ -218,7 +208,7 @@ class Level1Scene extends Phaser.Scene {
         }, null, this);
 
         this.physics.add.overlap(playerSprite, coins, (player, coin) => {
-            coin.destroy(); // Remove coin from scene
+            coin.destroy();
             this.gemManager.collectCoin();
             console.log('Moneda recolectada en Level1Scene');
         }, null, this);
@@ -237,6 +227,9 @@ class Level1Scene extends Phaser.Scene {
     update() {
         if (this.player) {
             this.player.update();
+        }
+        if (this.enemyManager) {
+            this.enemyManager.update();
         }
     }
 }

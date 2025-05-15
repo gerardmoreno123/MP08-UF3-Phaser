@@ -3,6 +3,7 @@ import StartScene from './scenes/StartScene.js';
 import Level1Scene from './scenes/Level1Scene.js';
 import GameOverScene from './scenes/GameOverScene.js';
 import Level2Scene from "./scenes/Level2Scene";
+import EndScene from "./scenes/EndScene";
 
 const TILE_SIZE = 16;
 const TILES_X = 32;
@@ -24,7 +25,7 @@ const config = {
             debug: false
         }
     },
-    scene: [StartScene, Level1Scene, Level2Scene, GameOverScene],
+    scene: [StartScene, Level1Scene, Level2Scene, GameOverScene, EndScene],
     scale: {
         mode: Phaser.Scale.FIT, // Escala hasta llenar el espacio disponible
         autoCenter: Phaser.Scale.CENTER_BOTH, // Centrar en pantalla
