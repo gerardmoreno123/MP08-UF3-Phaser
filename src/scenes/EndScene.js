@@ -12,6 +12,12 @@ class EndScene extends Phaser.Scene {
         const width = this.cameras.main.width; // 512 pixels
         const height = this.cameras.main.height; // 256 pixels
 
+        // Pausar la música al llegar a la escena final
+        const musicManager = this.registry.get('MusicManager');
+        if (musicManager) {
+            musicManager.pause();
+        }
+
         // Add the game over screen background
         const bg = this.add.image(width / 2, height / 2, 'StartScreen').setOrigin(0.5);
         bg.displayWidth = width;

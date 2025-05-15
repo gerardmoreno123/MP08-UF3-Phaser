@@ -80,7 +80,7 @@ class EnemyManager {
     }
 
     update() {
-        this,this.checkPlayerCollision(this.scene.player.getSprite());
+        this.checkPlayerCollision(this.scene.player.getSprite());
         this.checkAttackCollision(this.scene.player.getSprite());
     }
 

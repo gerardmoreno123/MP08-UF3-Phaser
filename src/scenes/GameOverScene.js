@@ -11,6 +11,12 @@ class GameOverScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
+        // Pausar la música al llegar a la escena final
+        const musicManager = this.registry.get('MusicManager');
+        if (musicManager) {
+            musicManager.pause();
+        }
+
         const bg = this.add.image(width / 2, height / 2, 'GameOver').setOrigin(0.5);
         bg.displayWidth = width;
         bg.displayHeight = height;

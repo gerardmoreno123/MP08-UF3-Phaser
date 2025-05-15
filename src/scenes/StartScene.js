@@ -4,20 +4,26 @@ class StartScene extends Phaser.Scene {
     }
 
     preload() {
-        // Load the start screen background and character sprite
+        // Cargar el fondo de la pantalla de inicio
         this.load.image('StartScreen', 'assets/backgrounds/StartScreen.png');
+
+        // Inicializar MusicManager y cargar la música
+        this.musicManager = new MusicManager(this);
+        this.musicManager.preload();
     }
 
     create() {
-        const width = this.cameras.main.width; // 512 pixels
-        const height = this.cameras.main.height; // 256 pixels
+        const width = this.cameras.main.width;
+        const height = this.cameras.main.height;
 
-        // Add the start screen background
+        // Reproducir la música a través de MusicManager
+        this.musicManager.create();
+
+        // Crear el fondo y el botón para comenzar
         const bg = this.add.image(width / 2, height / 2, 'StartScreen').setOrigin(0.5);
         bg.displayWidth = width;
         bg.displayHeight = height;
 
-        // Add title text with improved styling
         const title = this.add.text(width / 2, height / 2 - 80, 'The Hollow Hood', {
             fontSize: '36px',
             color: '#ffffff',
@@ -26,7 +32,6 @@ class StartScene extends Phaser.Scene {
             strokeThickness: 4
         }).setOrigin(0.5);
 
-        // Add start button with enhanced styling and hover effect
         const startButton = this.add.text(width / 2, height / 2 + 80, 'Comença', {
             fontSize: '32px',
             color: '#00ff00',
@@ -36,8 +41,9 @@ class StartScene extends Phaser.Scene {
             strokeThickness: 2
         }).setOrigin(0.5).setInteractive();
 
-        // Button interactions
         startButton.on('pointerdown', () => {
+            // Asegurarse de que la música esté reproduciéndose (por políticas de reproducción automática)
+            this.musicManager.play();
             this.scene.start('Level1Scene');
         });
 
@@ -49,7 +55,6 @@ class StartScene extends Phaser.Scene {
             startButton.setStyle({ color: '#00ff00', scale: 1.0 });
         });
 
-        // Optional: Add a subtle fade-in effect for all elements
         this.tweens.add({
             targets: [bg, title, startButton],
             alpha: { from: 0, to: 1 },
